@@ -33,15 +33,16 @@ class FlashcardDB():
 
     # function to add a set to the database
     def add_set(self, name):
+        self.cursor = self.connection.cursor()
         self.cursor.execute('''
            INSERT INTO flashcard_sets (name)
            VALUES (?)
         ''', (name,))
 
-        self.set_id = self.cursor.lastrowid
+        
         self.connection.commit()
 
-        return self.set_id
+        return self.cursor.lastrowid
 
     
     #dunction to add a flashcard to the database
@@ -62,18 +63,18 @@ class FlashcardDB():
     
     def get_sets(self):
         self.cursor = self.connection.cursor()
-
-        # fetch all flashcard sets
         self.cursor.execute('''
             SELECT id, name FROM flashcard_sets
         ''')
-
         rows = self.cursor.fetchall()
-        return {row[1]: row[0] for row in rows} # dict of sets 
+        print(f"Fetched sets from database: {rows}")  # Debugging statement
+        return {row[1]: row[0] for row in rows}
+
+       
 
     
-    # function to retrieve all flashcards in certain set\
-    def get_cards(self,set_id):
+    # function to retrieve all flashcards in certain set
+    def get_cards(self, set_id):
         self.cursor = self.connection.cursor()
 
         self.cursor.execute('''

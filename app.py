@@ -64,8 +64,10 @@ class FlashcardApp():
         self.add_word_button = ttk.Button(self.generate_set_frame, text='Add Term', command=self.add_term).pack(padx=5, pady=10)
 
         # save set button (create_set)
-        self.save_set_button = ttk.Button(self.generate_set_frame, text='Save Set', command=self.create_set).pack(padx=5, pady=10)
-    
+        self.save_set_button = ttk.Button(self.generate_set_frame, text='Save Set', command=self.create_and_populate_set).pack(padx=5, pady=10)
+        
+
+        
     def set_tab(self):
         self.select_set_frame = ttk.Frame(self.notebook)
         self.notebook.add(self.select_set_frame, text='Select Set')
@@ -101,10 +103,16 @@ class FlashcardApp():
         self.previous_card_button = ttk.Button(self.flashcards_frame, text='Previous Card', command=self.prev_card).pack(side='left',padx=5,pady=5)
 
     def populate_sets_combobox(self):
-        sets = self.db.get_sets()
-        self.sets_combobox['values'] = list(sets.keys())
-        if sets:
+        all_sets = self.db.get_sets()
+        print(f"Available sets: {all_sets}")  # Debugging statement to show available sets
+        self.sets_combobox['values'] = list(all_sets.keys())
+        if all_sets:
             self.sets_combobox.current(0)
+
+
+    def create_and_populate_set(self):
+        self.create_set()
+        self.populate_sets_combobox()
 
     # adds word to a set 
     def add_term(self):
@@ -128,16 +136,21 @@ class FlashcardApp():
     def create_set(self):
         set_name = self.set_name.get()
         if set_name:
-            sets = self.db.get_sets()
-            if set_name not in self.db.get_sets():
+            existing_sets = self.db.get_sets()
+            print(f"Existing sets before adding: {existing_sets}")  # Debugging statement
+            if set_name not in existing_sets:
                 set_id = self.db.add_set(set_name)
-                self.populate_sets_combobox()
+                print(f"Added set with ID: {set_id}")  # Debugging statement
                 self.set_name.set('')
                 self.term.set('')
                 self.definition.set('')
+                self.populate_sets_combobox()
+            else:
+                print("Set already exists.")  # Debugging statement if the set already exists
+        else:
+            print("Set name is empty.")  # Debugging statement if the set name is empty
 
 
-    # deletes a selected set
     def delete_selected_set(self):
         set_name = self.sets_combobox.get()
         if set_name:
@@ -145,8 +158,13 @@ class FlashcardApp():
             if result:
                 set_id = self.db.get_sets()[set_name]
                 self.db.delete_set(set_id)
-                self.populate_sets_combobox()
+                self.populate_sets_combobox()  # Update the combobox
                 self.clear_flashcard_display()
+
+
+                # clears combobox after last set is deleted
+                if not self.db.get_sets():
+                    self.sets_combobox.set('')
 
 
     # allows for set selection
