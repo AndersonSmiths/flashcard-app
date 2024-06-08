@@ -102,6 +102,7 @@ class FlashcardApp():
         # button to view previous card previous_card
         self.previous_card_button = ttk.Button(self.flashcards_frame, text='Previous Card', command=self.prev_card).pack(side='left',padx=5,pady=5)
 
+    
     def populate_sets_combobox(self):
         all_sets = self.db.get_sets()
         print(f"Available sets: {all_sets}")  # Debugging statement to show available sets
